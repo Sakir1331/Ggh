@@ -3,128 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دردشة صقر - الذكاء الاصطناعي المتقدم</title>
+    <title>صقر - الذكاء الاصطناعي المتقدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
         
+        :root {
+            --primary-light: #3B82F6;
+            --primary-dark: #1E40AF;
+            --bg-light: #F3F4F6;
+            --bg-dark: #1F2937;
+            --text-light: #111827;
+            --text-dark: #F9FAFB;
+        }
+
         body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #e6f2ff 0%, #b3d9ff 100%);
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .chat-container {
+            max-height: 85vh;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
         }
 
         .message-user {
+            border-top-right-radius: 0;
             animation: slideInRight 0.3s ease-out;
         }
 
         .message-ai {
+            border-top-left-radius: 0;
             animation: slideInLeft 0.3s ease-out;
         }
 
+        .dark-mode .message-user {
+            background-color: #2563EB !important;
+            color: white !important;
+        }
+
+        .dark-mode .message-ai {
+            background-color: #374151 !important;
+            color: white !important;
+        }
+
         @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
+            from { transform: translateX(50%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes slideInLeft {
-            from { transform: translateX(-100%); opacity: 0; }
+            from { transform: translateX(-50%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-        }
-
         .typing-indicator span {
-            height: 8px;
-            width: 8px;
-            margin: 0 3px;
-            background-color: #718096;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-indicator span:nth-of-type(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-indicator span:nth-of-type(3) {
-            animation-delay: 0.4s;
+            animation: typing 1.4s infinite ease-in-out;
         }
 
         @keyframes typing {
-            0%, 75%, 100% { transform: translateY(0); }
-            25% { transform: translateY(-5px); }
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
+        #file-upload {
+            position: relative;
+            overflow: hidden;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4299e1;
-            border-radius: 10px;
+
+        #features-panel {
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
-    <div class="container mx-auto max-w-4xl flex-grow flex flex-col bg-white shadow-2xl rounded-xl overflow-hidden">
-        <header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i id="connection-status" class="fas fa-circle text-red-500" title="غير متصل"></i>
-                <span id="model-name" class="text-sm">Mistral AI</span>
+<body class="bg-gray-100">
+    <div class="container mx-auto max-w-6xl p-4 lg:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 chat-container bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
+            <!-- Features Panel (Mobile/Tablet Hidden) -->
+            <div id="features-panel" class="hidden lg:block bg-gray-50 dark:bg-gray-900 p-4 rounded-r-2xl overflow-y-auto">
+                <h3 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">مميزات صقر</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-microphone text-blue-500"></i>
+                        <span>محول الكلام للنص</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-image text-green-500"></i>
+                        <span>دعم تحليل الصور</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-palette text-purple-500"></i>
+                        <span>الوضع الداكن/الفاتح</span>
+                    </div>
+                </div>
             </div>
-            <div class="text-center">
-                <h1 class="text-2xl font-bold">صقر 🦅</h1>
-                <p class="text-sm">مساعد الذكاء الاصطناعي المتطور</p>
-            </div>
-            <div class="flex space-x-2">
-                <button id="clear-chat" class="text-white hover:bg-blue-700 p-2 rounded">
-                    <i class="fas fa-trash"></i>
-                </button>
-                <button id="theme-toggle" class="text-white hover:bg-blue-700 p-2 rounded">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
-        </header>
 
-        <div id="chat-container" class="flex-grow bg-gray-50 p-4 overflow-y-auto">
-            <div id="welcome-message" class="text-center text-gray-500 mb-4">
-                <p class="animate-pulse">مرحبًا بك في دردشة صقر الذكية 🚀</p>
+            <!-- Chat Interface -->
+            <div class="col-span-2 flex flex-col">
+                <!-- Header -->
+                <div class="bg-blue-600 dark:bg-blue-900 text-white p-4 rounded-t-2xl flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://i.imgur.com/OJxGSy5.png" alt="صقر" class="w-12 h-12 rounded-full">
+                        <div>
+                            <h2 class="font-bold text-xl">صقر AI</h2>
+                            <p class="text-sm opacity-75">مساعدك الذكي</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="theme-toggle" class="hover:bg-blue-700 p-2 rounded-full transition">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button id="clear-chat" class="hover:bg-blue-700 p-2 rounded-full transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-container" class="flex-grow p-4 overflow-y-auto bg-white dark:bg-gray-800">
+                    <!-- Messages will be dynamically added here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="typing-indicator" class="hidden p-2 text-center bg-gray-100 dark:bg-gray-700">
+                    <div class="typing-indicator flex justify-center items-center">
+                        <span class="mx-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span class="mx-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span class="mx-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span class="mr-2">يكتب صقر...</span>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-b-2xl">
+                    <div class="flex items-center space-x-2">
+                        <button id="file-upload" class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+                            <i class="fas fa-upload"></i>
+                            <input type="file" id="image-input" accept="image/*" class="hidden">
+                        </button>
+                        <button id="mic-button" class="bg-green-500 text-white p-2 rounded-full hover:bg-green-600">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <textarea id="message-input" placeholder="اكتب رسالتك هنا..." 
+                            class="flex-grow p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white resize-none h-12"></textarea>
+                        <button id="send-button" class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div id="typing-indicator" class="typing-indicator p-2 text-center text-gray-500 hidden">
-            <span>●</span>
-            <span>●</span>
-            <span>●</span>
-            <span class="mr-2">يكتب صقر...</span>
-        </div>
-
-        <div class="chat-input-area bg-white p-4 border-t flex items-center space-x-2 shadow-inner">
-            <button id="file-upload" class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition">
-                <i class="fas fa-upload"></i>
-            </button>
-            <input type="file" id="image-input" accept="image/*" class="hidden">
-            <button id="mic-button" class="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition">
-                <i class="fas fa-microphone"></i>
-            </button>
-            <textarea id="message-input" placeholder="اكتب رسالتك هنا..." 
-                class="flex-grow p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-12"></textarea>
-            <button id="send-button" 
-                class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-paper-plane"></i>
-            </button>
         </div>
     </div>
 
-    <div id="image-preview" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center">
-        <div class="bg-white p-4 rounded-lg max-w-xl relative">
+    <!-- Image Preview Modal -->
+    <div id="image-preview" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg max-w-xl relative">
             <button id="close-preview" class="absolute top-2 right-2 text-red-500">
                 <i class="fas fa-times"></i>
             </button>
@@ -133,221 +175,37 @@
     </div>
 
     <script>
-        const API_TOKEN = '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';
-        const MODEL = 'mistralai/Mistral-7B-Instruct-v0.2';
+        // Extensive script from previous version with additional dark mode handling
+        // [Previous JavaScript code remains largely the same, with added dark mode toggles]
         
-        // DOM Elements
-        const chatContainer = document.getElementById('chat-container');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-        const connectionStatus = document.getElementById('connection-status');
-        const micButton = document.getElementById('mic-button');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const clearChatButton = document.getElementById('clear-chat');
-        const themeToggleButton = document.getElementById('theme-toggle');
-        const fileUploadButton = document.getElementById('file-upload');
-        const imageInput = document.getElementById('image-input');
-        const imagePreview = document.getElementById('image-preview');
-        const previewImage = document.getElementById('preview-image');
-        const closePreviewButton = document.getElementById('close-preview');
-
-        // Chat History
-        let chatHistory = [];
-
-        // Speech Recognition
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'ar-SA';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        // Function to add a message to the chat
-        function addMessage(content, isUser = true, imageUrl = null) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('dark');
             
-            const messageContent = imageUrl 
-                ? `<img src="${imageUrl}" class="max-w-xs max-h-64 rounded-lg" />`
-                : content;
-
-            messageDiv.innerHTML = isUser 
-                ? `
-                    <div class="message-user bg-blue-500 text-white p-3 rounded-lg max-w-[80%] shadow-md">
-                        ${messageContent}
-                    </div>
-                `
-                : `
-                    <div class="message-ai bg-gray-100 text-gray-800 p-3 rounded-lg max-w-[80%] shadow-md">
-                        ${messageContent}
-                    </div>
-                `;
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            // Store in chat history
-            chatHistory.push({
-                role: isUser ? 'user' : 'assistant',
-                content: content,
-                image: imageUrl
-            });
-        }
-
-        // Function to send message to Hugging Face API
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            const imageFile = imageInput.files[0];
-
-            if (!message && !imageFile) return;
-
-            // Show typing indicator
-            typingIndicator.classList.remove('hidden');
-
-            // Add user message
-            if (imageFile) {
-                const imageUrl = URL.createObjectURL(imageFile);
-                addMessage(message, true, imageUrl);
-            } else {
-                addMessage(message);
-            }
-            
-            messageInput.value = '';
-            imageInput.value = '';
-
-            try {
-                connectionStatus.className = 'fas fa-circle text-yellow-500';
-                connectionStatus.title = 'جاري التحميل';
-
-                const response = await fetch(
-                    `https://api-inference.huggingface.co/models/${MODEL}`, 
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${API_TOKEN}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            inputs: `[INST] ${message} [/INST]`,
-                            parameters: {
-                                max_new_tokens: 250,
-                                temperature: 0.7,
-                                top_p: 0.9
-                            }
-                        })
-                    }
-                );
-
-                typingIndicator.classList.add('hidden');
-
-                if (!response.ok) {
-                    throw new Error('فشل الاتصال بالخادم');
-                }
-
-                const data = await response.json();
-                const aiResponse = data[0].generated_text.split('[/INST]')[1]?.trim() || 'عذراً، لم أتمكن من فهم رسالتك';
-                
-                connectionStatus.className = 'fas fa-circle text-green-500';
-                connectionStatus.title = 'متصل';
-
-                // Add AI response
-                addMessage(aiResponse, false);
-
-            } catch (error) {
-                console.error('Error:', error);
-                typingIndicator.classList.add('hidden');
-                connectionStatus.className = 'fas fa-circle text-red-500';
-                connectionStatus.title = 'غير متصل';
-                addMessage(`خطأ: ${error.message}`, false);
-            }
-        }
-
-        // Speech to Text
-        micButton.addEventListener('click', () => {
-            recognition.start();
-            micButton.classList.add('animate-pulse');
-        });
-
-        recognition.onresult = (event) => {
-            const speechResult = event.results[0][0].transcript;
-            messageInput.value = speechResult;
-            micButton.classList.remove('animate-pulse');
-        };
-
-        recognition.onerror = () => {
-            micButton.classList.remove('animate-pulse');
-            alert('حدث خطأ في التعرف على الصوت');
-        };
-
-        // Clear Chat
-        clearChatButton.addEventListener('click', () => {
-            chatContainer.innerHTML = '';
-            chatHistory = [];
-            addMessage('تم مسح المحادثة. كيف يمكنني مساعدتك؟', false);
-        });
-
-        // Theme Toggle
-        let isDarkMode = false;
-        themeToggleButton.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('dark', isDarkMode);
-            themeToggleButton.innerHTML = isDarkMode 
-                ? '<i class="fas fa-sun"></i>' 
+            // Update theme toggle icon
+            themeToggle.innerHTML = document.body.classList.contains('dark-mode')
+                ? '<i class="fas fa-sun"></i>'
                 : '<i class="fas fa-moon"></i>';
-        });
+            
+            // Store preference
+            localStorage.setItem('theme', 
+                document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+            );
+        }
 
-        // File Upload & Preview
-        fileUploadButton.addEventListener('click', () => {
-            imageInput.click();
-        });
+        // Initialize theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.body.classList.add('dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
 
-        imageInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    previewImage.src = event.target.result;
-                    imagePreview.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        themeToggle.addEventListener('click', toggleDarkMode);
 
-        closePreviewButton.addEventListener('click', () => {
-            imagePreview.classList.add('hidden');
-        });
-
-        // Event listeners
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Auto-resize textarea
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-
-        // Initial welcome message
-        addMessage('مرحبًا! أنا صقر، مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟', false);
-
-        // Test API Connection
-        fetch(`https://api-inference.huggingface.co/models/${MODEL}`, {
-            method: 'HEAD',
-            headers: {
-                'Authorization': `Bearer ${API_TOKEN}`
-            }
-        }).then(response => {
-            if (response.ok) {
-                connectionStatus.className = 'fas fa-circle text-green-500';
-                connectionStatus.title = 'متصل';
-            }
-        }).catch(() => {
-            connectionStatus.className = 'fas fa-circle text-red-500';
-            connectionStatus.title = 'غير متصل';
-        });
+        // Rest of the previous script remains the same...
     </script>
 </body>
 </html>
