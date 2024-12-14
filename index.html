@@ -3,334 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دردشة صقر الذكية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>صفحة دردشة مع صقر</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --background-color: #ecf0f1;
-            --text-color: #333;
-            --user-message-color: #e0f7fa;
-            --ai-message-color: #f1f8e9;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--secondary-color) #f1f1f1;
-        }
-
         body {
-            font-family: 'Tajawal', Arial, sans-serif;
-            background-color: var(--background-color);
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            direction: rtl;
-            line-height: 1.6;
-            color: var(--text-color);
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f06, #4a90e2);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .chat-container {
-            width: 500px;
-            max-width: 95%;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            max-height: 800px;
+            backdrop-filter: blur(10px);
         }
 
         .chat-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ddd;
         }
 
-        #chatMessages {
-            flex-grow: 1;
+        .chat-messages {
+            padding: 20px;
+            height: 400px;
             overflow-y: auto;
-            padding: 15px;
             background-color: #f9f9f9;
+        }
+
+        .chat-input {
             display: flex;
-            flex-direction: column;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-top: 2px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            margin-right: 10px;
+            background-color: #fff;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .chat-input button:active {
+            transform: scale(0.95);
         }
 
         .message {
-            max-width: 80%;
-            margin: 10px 0;
-            padding: 12px;
-            border-radius: 12px;
-            position: relative;
-            align-self: flex-start;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .user-message {
-            background-color: var(--user-message-color);
-            align-self: flex-end;
-        }
-
-        .ai-message {
-            background-color: var(--ai-message-color);
-            align-self: flex-start;
-        }
-
-        .message-image {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            object-fit: contain;
-        }
-
-        .input-area {
-            display: flex;
+            margin-bottom: 20px;
             padding: 15px;
-            background-color: white;
-            border-top: 1px solid #e0e0e0;
-            gap: 10px;
+            border-radius: 15px;
+            max-width: 75%;
+            word-wrap: break-word;
+            position: relative;
         }
 
-        #userInput {
-            flex-grow: 1;
-            padding: 12px;
-            border: 2px solid var(--secondary-color);
-            border-radius: 25px;
-            font-size: 1rem;
+        .message.user {
+            background-color: #dcf8c6;
+            text-align: right;
+            margin-left: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        #sendButton, #imageUploadButton {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #sendButton:hover, #imageUploadButton:hover {
-            background-color: var(--primary-color);
-        }
-
-        #imageUploadInput {
-            display: none;
-        }
-
-        .typing-indicator {
-            align-self: flex-start;
+        .message.ai {
             background-color: #f1f0f0;
-            padding: 10px;
-            border-radius: 12px;
-            margin: 10px 0;
-            display: none;
+            text-align: left;
+            margin-right: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .error-message {
-            background-color: #ffebee;
-            color: #d32f2f;
-            align-self: center;
-            margin: 10px 0;
+        .message::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            border: 10px solid transparent;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .message.user::after {
+            left: 10px;
+            border-left-color: #dcf8c6;
         }
 
-        @media (max-width: 600px) {
-            .chat-container {
-                width: 100%;
-                height: 100vh;
-                max-height: none;
-                border-radius: 0;
-            }
+        .message.ai::after {
+            right: 10px;
+            border-right-color: #f1f0f0;
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h2>دردشة صقر الذكية</h2>
+            <h2>دردشة مع صقر</h2>
         </div>
-        <div id="chatMessages"></div>
-        <div class="typing-indicator">يكتب صقر...</div>
-        <div class="input-area">
-            <div class="action-buttons">
-                <input type="file" id="imageUploadInput" accept="image/*">
-                <button id="imageUploadButton" onclick="document.getElementById('imageUploadInput').click()">
-                    📷
-                </button>
-                <button id="sendButton" onclick="sendMessage()">إرسال</button>
-            </div>
-            <input type="text" id="userInput" placeholder="اكتب رسالتك هنا...">
+        <div class="chat-messages" id="chat-messages">
+            <div class="message ai">مرحبا! أنا صقر، كيف يمكنني مساعدتك اليوم؟</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="اكتب رسالتك هنا...">
+            <button onclick="sendMessage()">إرسال</button>
         </div>
     </div>
 
     <script>
-        // قائمة متعددة من مفاتيح API للتعامل مع القيود
-        const API_KEYS = [
-            'AIzaSyBfDIDoz6cirXWwtmqBSgrvbq_lnVMxrBg',
-            // يمكنك إضافة المزيد من المفاتيح هنا
-        ];
-
-        const chatMessages = document.getElementById('chatMessages');
-        const userInput = document.getElementById('userInput');
-        const sendButton = document.getElementById('sendButton');
-        const imageUploadInput = document.getElementById('imageUploadInput');
-        const typingIndicator = document.querySelector('.typing-indicator');
-
-        let currentImage = null;
-        let currentAPIKeyIndex = 0;
-
-        function addMessage(message, type = 'ai-message', imageUrl = null) {
-            const messageContainer = document.createElement('div');
-            messageContainer.classList.add('message', type);
-
-            if (imageUrl) {
-                const imageElement = document.createElement('img');
-                imageElement.src = imageUrl;
-                imageElement.classList.add('message-image');
-                messageContainer.appendChild(imageElement);
-            }
-
-            if (message) {
-                const textElement = document.createElement('div');
-                textElement.textContent = message;
-                messageContainer.appendChild(textElement);
-            }
-
-            chatMessages.appendChild(messageContainer);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        imageUploadInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImage = e.target.result;
-                    addMessage('', 'user-message', currentImage);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        const API_KEY = 'AIzaSyBfDIDoz6cirXWwtmqBSgrvbq_lnVMxrBg';
 
         async function sendMessage() {
-            const message = userInput.value.trim();
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            const chatMessages = document.getElementById('chat-messages');
             
-            if (message === '' && !currentImage) return;
+            // إضافة رسالة المستخدم
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.textContent = userInput;
+            chatMessages.appendChild(userMessage);
 
-            sendButton.disabled = true;
-            typingIndicator.style.display = 'block';
+            document.getElementById('user-input').value = '';
 
+            // طلب API من Gemini
             try {
-                const requestBody = {
-                    contents: [{
-                        parts: []
-                    }]
-                };
-
-                if (message) {
-                    requestBody.contents[0].parts.push({ text: message });
-                }
-
-                if (currentImage) {
-                    requestBody.contents[0].parts.push({
-                        inlineData: {
-                            mimeType: 'image/jpeg',
-                            data: currentImage.split(',')[1]
-                        }
-                    });
-                }
-
-                // محاولة الاتصال مع تناوب المفاتيح
-                const response = await fetchWithMultipleKeys(requestBody);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userInput }] }]
+                    })
+                });
 
                 const data = await response.json();
-
-                if (response.ok && data.candidates) {
-                    const aiResponse = data.candidates[0]?.content?.parts[0]?.text || 'لم يتم استلام استجابة';
-                    addMessage(aiResponse);
-                } else {
-                    // معالجة تفصيلية للأخطاء
-                    const errorMessage = data.error 
-                        ? `خطأ: ${data.error.message}` 
-                        : 'حدث خطأ في معالجة الطلب';
-                    addMessage(errorMessage, 'error-message');
+                let aiResponse = 'هذه رد تلقائي من صقر.';
+                if (response.ok && data.candidates && data.candidates[0]) {
+                    aiResponse = data.candidates[0].content.parts[0].text || aiResponse;
                 }
 
-                userInput.value = '';
-                currentImage = null;
-                imageUploadInput.value = '';
-
+                // إضافة رد الذكاء الاصطناعي
+                setTimeout(() => {
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'message ai';
+                    aiMessage.textContent = aiResponse;
+                    chatMessages.appendChild(aiMessage);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
             } catch (error) {
-                addMessage(`خطأ في الاتصال: ${error.message}`, 'error-message');
                 console.error('Error:', error);
-            } finally {
-                sendButton.disabled = false;
-                typingIndicator.style.display = 'none';
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai';
+                errorMessage.textContent = 'عذراً، حدث خطأ في الاتصال.';
+                chatMessages.appendChild(errorMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
-
-        async function fetchWithMultipleKeys(requestBody) {
-            const currentKey = API_KEYS[currentAPIKeyIndex];
-            
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${currentKey}`, 
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestBody)
-                    }
-                );
-
-                // إذا كان هناك خطأ، حاول بالمفتاح التالي
-                if (!response.ok) {
-                    currentAPIKeyIndex = (currentAPIKeyIndex + 1) % API_KEYS.length;
-                    throw new Error('حاول بمفتاح آخر');
-                }
-
-                return response;
-            } catch (error) {
-                console.error('خطأ في الاتصال:', error);
-                throw error;
-            }
-        }
-
-        userInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // رسالة ترحيبية محسنة
-        function initializeChat() {
-            addMessage('مرحباً! أنا صقر، ذكاء اصطناعي متطور. يمكنك إرسال نص أو صورة وسأساعدك بكل سرور.');
-        }
-
-        // التأكد من تحميل الصفحة بالكامل
-        document.addEventListener('DOMContentLoaded', initializeChat);
     </script>
 </body>
 </html>
